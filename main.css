@@ -1,3 +1,23 @@
+body {
+  text-align: center;
+  background-color: #f0e8c5;
+}
+
+div {
+  margin-top: 15px;
+}
+
+.image-section {
+  display: flex;
+  justify-content: center;
+}
+
+.section-style {
+  margin-right: 25px;
+  margin-left: 25px;
+  background-color: white;
+}
+
 .slider {
     --handle: #362A89;
     --line: #D1D6EE;
@@ -126,37 +146,5 @@
         right: 0;
         height: 0;
         width: 10%;
-    }
-}
-
-html {
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-}
-
-* {
-    box-sizing: inherit;
-    &:before,
-    &:after {
-        box-sizing: inherit;
-    }
-}
-
-// Center & dribbble
-body {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    font-family: 'Inter', Arial;
-    background: #F6F8FF;
-    .dribbble {
-        position: fixed;
-        display: block;
-        right: 20px;
-        bottom: 20px;
-        img {
-            display: block;
-            height: 28px;
-        }
     }
 }
