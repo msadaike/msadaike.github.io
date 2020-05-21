@@ -1,3 +1,5 @@
+document.getElementById('date').innerHTML = new Date().toDateString();
+
 document.querySelectorAll('.slider').forEach(elem => {
 
     let handle,
