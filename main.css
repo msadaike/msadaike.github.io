@@ -159,15 +159,4 @@ body {
             height: 28px;
         }
     }
-    .twitter {
-        position: fixed;
-        display: block;
-        right: 64px;
-        bottom: 14px;
-        svg {
-            width: 32px;
-            height: 32px;
-            fill: #1da1f2;
-        }
-    }
 }
