@@ -143,8 +143,8 @@
         }
         
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.2); }
         }
         
         @keyframes legendaryPulse {
@@ -260,6 +260,28 @@
         }
         
         .reveal-container.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .brawler-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .brawler-popup.active {
             opacity: 1;
             pointer-events: all;
         }
@@ -482,7 +504,7 @@
             text-transform: uppercase;
             letter-spacing: 8px;
             z-index: 5;
-            text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+            text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000, 1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 0px 3px 6px rgba(0,0,0,0.8), 0 0 30px currentColor, 0 0 60px currentColor;
             font-family: 'Lilita One', cursive;
             width: 100%;
             padding: 0 20px;
@@ -901,8 +923,8 @@
             <div class="attempt-ball" id="attempt-4" data-attempt="5" style="color: #00E676; border-color: #00E676;">5</div>
         </div>
         
-        <div class="open-instruction" id="openInstruction" style="display: none; position: absolute; top: 560px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 1rem; text-align: center; z-index: 10; animation: bounce 1s ease-in-out infinite; white-space: nowrap;">
-            👆 Toque para abrir!
+        <div class="open-instruction" id="openInstruction" style="display: none; position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 1rem; text-align: center; z-index: 10; animation: bounce 1s ease-in-out infinite; white-space: nowrap;">
+            
         </div>
     </div>
     
@@ -921,6 +943,16 @@
         </div>
         
         <button class="try-again-btn" id="tryAgainBtn">🔄 TENTAR NOVAMENTE</button>
+    </div>
+    
+    <!-- Brawler Popup -->
+    <div class="brawler-popup" id="brawlerPopup">
+        <div class="rarity-glow rare" id="popupRarityGlow"></div>
+        
+        <div class="brawler-card" id="popupBrawlerCard">
+            <div class="brawler-image" id="popupBrawlerImage"></div>
+            <h2 class="brawler-name" id="popupBrawlerName"></h2>
+        </div>
     </div>
     
     <!-- Collection Page -->
@@ -1258,6 +1290,11 @@
             if (currentAttempt >= 5 || currentRarity >= 4) {
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
+                const attemptsContainer = document.getElementById('attemptsContainer');
+                const starDrop = document.getElementById('starDrop');
+                attemptsContainer.style.display = 'none';
+                starDrop.style.width = '300px';
+                starDrop.style.height = '300px';
                 return;
             }
             
@@ -1319,6 +1356,11 @@
                 // Show instruction to open
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
+                const attemptsContainer = document.getElementById('attemptsContainer');
+                const starDrop = document.getElementById('starDrop');
+                attemptsContainer.style.display = 'none';
+                starDrop.style.width = '300px';
+                starDrop.style.height = '300px';
                 return;
             }
             
@@ -1330,11 +1372,25 @@
                 updateRarityUI();
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
+                const attemptsContainer = document.getElementById('attemptsContainer');
+                const starDrop = document.getElementById('starDrop');
+                attemptsContainer.style.display = 'none';
+                starDrop.style.width = '300px';
+                starDrop.style.height = '300px';
             }
         }
         
         async function openStarDrop() {
             isOpening = true;
+            
+            const dropRarity = rarityOrder[currentRarity];
+            const result = selectBrawlerFromDrop(dropRarity);
+            selectedRarity = result.rarity;
+            selectedBrawler = result.brawler;
+            
+            // Play the rarity sound before opening animation
+            const audio = new Audio(`sons/${dropRarity.replace('superRare', 'super-rare')}-star-drop-brawl-stars.mp3`);
+            audio.play();
             
             const container = document.getElementById('starDropContainer');
             const starDrop = document.getElementById('starDrop');
@@ -1343,7 +1399,11 @@
             const rarityText = document.getElementById('rarityText');
             
             rarityText.style.opacity = '0';
-            attemptsContainer.style.opacity = '0';
+            attemptsContainer.style.display = 'none';
+            
+            // Increase star size
+            starDrop.style.width = '300px';
+            starDrop.style.height = '300px';
             
             // Shake animation
             starDrop.classList.add('shaking');
@@ -1376,7 +1436,7 @@
                 const color = rarityColors[rarityOrder[currentRarity]];
                 createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 80, color);
                 
-                container.style.transform = 'scale(0)';
+                container.style.transform = 'translateX(-50%) scale(0)';
                 container.style.opacity = '0';
                 container.style.transition = 'all 0.5s ease';
             }, 1200);
@@ -1393,26 +1453,26 @@
             // Probabilidades baseadas na raridade do drop
             const dropProbabilities = {
                 legendary: [
-                    { rarity: 'legendary', chance: 5 },
-                    { rarity: 'mythic', chance: 10 },
-                    { rarity: 'epic', chance: 20 },
-                    { rarity: 'superRare', chance: 30 },
-                    { rarity: 'rare', chance: 35 }
+                    { rarity: 'legendary', chance: 25 },
+                    { rarity: 'mythic', chance: 30 },
+                    { rarity: 'epic', chance: 30 },
+                    { rarity: 'superRare', chance: 15 },
+                    { rarity: 'rare', chance: 0 }
                 ],
                 mythic: [
-                    { rarity: 'mythic', chance: 5 },
-                    { rarity: 'epic', chance: 15 },
-                    { rarity: 'superRare', chance: 30 },
-                    { rarity: 'rare', chance: 50 }
+                    { rarity: 'mythic', chance: 25 },
+                    { rarity: 'epic', chance: 30 },
+                    { rarity: 'superRare', chance: 25 },
+                    { rarity: 'rare', chance: 20 }
                 ],
                 epic: [
-                    { rarity: 'epic', chance: 8 },
-                    { rarity: 'superRare', chance: 27 },
-                    { rarity: 'rare', chance: 65 }
+                    { rarity: 'epic', chance: 25 },
+                    { rarity: 'superRare', chance: 40 },
+                    { rarity: 'rare', chance: 35 }
                 ],
                 superRare: [
-                    { rarity: 'superRare', chance: 15 },
-                    { rarity: 'rare', chance: 85 }
+                    { rarity: 'superRare', chance: 55 },
+                    { rarity: 'rare', chance: 45 }
                 ],
                 rare: [
                     { rarity: 'rare', chance: 100 }
@@ -1432,10 +1492,12 @@
                 }
             }
             
-            // Get a random brawler from the selected rarity
+            // Get a random brawler from the selected rarity, prioritizing new ones
             const brawlers = brawlersByRarity[selectedRarity];
+            const newBrawlers = brawlers.filter(b => !unlockedBrawlers[`${selectedRarity}-${b.name}`]);
+            const availableBrawlers = newBrawlers.length > 0 ? newBrawlers : brawlers;
             return {
-                brawler: brawlers[Math.floor(Math.random() * brawlers.length)],
+                brawler: availableBrawlers[Math.floor(Math.random() * availableBrawlers.length)],
                 rarity: selectedRarity
             };
         }
@@ -1448,10 +1510,18 @@
             const rarityGlow = document.getElementById('rarityGlow');
             const tryAgainBtn = document.getElementById('tryAgainBtn');
             
-            const dropRarity = rarityOrder[currentRarity];
-            const result = selectBrawlerFromDrop(dropRarity);
-            selectedRarity = result.rarity;
-            selectedBrawler = result.brawler;
+            // Update background to the dropped rarity
+            const rarityClass = selectedRarity.replace('superRare', 'super-rare');
+            document.body.className = rarityClass;
+            
+            // Check if brawler is already unlocked
+            const key = `${selectedRarity}-${selectedBrawler.name}`;
+            const newBadge = document.querySelector('.new-badge');
+            if (unlockedBrawlers[key]) {
+                newBadge.style.display = 'none';
+            } else {
+                newBadge.style.display = 'block';
+            }
             
             revealContainer.classList.add('active');
             
@@ -1483,6 +1553,31 @@
             }, 2000);
             
             isOpening = false;
+        }
+        
+        function showBrawlerPopup(key) {
+            const brawler = unlockedBrawlers[key];
+            if (!brawler) return;
+            
+            const popup = document.getElementById('brawlerPopup');
+            const rarityGlow = document.getElementById('popupRarityGlow');
+            const brawlerCard = document.getElementById('popupBrawlerCard');
+            const brawlerImage = document.getElementById('popupBrawlerImage');
+            const brawlerName = document.getElementById('popupBrawlerName');
+            
+            popup.classList.add('active');
+            
+            rarityGlow.className = `rarity-glow ${brawler.rarity}`;
+            
+            brawlerImage.style.background = `linear-gradient(145deg, ${brawler.color}40, ${brawler.color}80)`;
+            brawlerImage.style.borderColor = brawler.color;
+            brawlerImage.style.boxShadow = `0 0 50px ${brawler.color}80, inset 0 0 30px ${brawler.color}40`;
+            
+            brawlerImage.innerHTML = brawler.emoji;
+            brawlerName.textContent = brawler.name;
+            brawlerName.style.color = brawler.color;
+            
+            brawlerCard.classList.add('revealed');
         }
         
         function saveUnlockedBrawler(brawler) {
@@ -1555,7 +1650,7 @@
                     brawlersHtml += `
                         <div class="brawler-item ${isUnlocked ? 'unlocked' : 'locked'}" 
                              style="--color: ${brawler.color}"
-                             onclick="initAudio(); playSound('tap');">
+                             onclick="${isUnlocked ? `showBrawlerPopup('${key}'); ` : ''}initAudio(); playSound('tap');">
                             <div class="brawler-item-emoji">${brawler.emoji}</div>
                             <div class="brawler-item-name">${brawler.name}</div>
                             ${isUnlocked ? `<div class="brawler-count">x${isUnlocked.count}</div>` : '<div class="brawler-item locked-overlay">🔒</div>'}
@@ -1629,10 +1724,12 @@
             });
             
             setTimeout(() => {
-                container.style.transform = 'scale(1)';
+                container.style.transform = 'translateX(-50%) scale(1)';
                 container.style.opacity = '1';
                 rarityText.style.opacity = '1';
-                attemptsContainer.style.opacity = '1';
+                attemptsContainer.style.display = 'flex';
+                starDrop.style.width = '200px';
+                starDrop.style.height = '200px';
                 document.getElementById('particles').innerHTML = '';
                 updateRarityUI();
             }, 500);
@@ -1663,6 +1760,10 @@
         document.addEventListener('gesturestart', (e) => e.preventDefault());
         document.addEventListener('gesturechange', (e) => e.preventDefault());
         document.addEventListener('gestureend', (e) => e.preventDefault());
+        
+        document.getElementById('brawlerPopup').addEventListener('click', () => {
+            document.getElementById('brawlerPopup').classList.remove('active');
+        });
         
         document.addEventListener('DOMContentLoaded', () => {
             updateRarityUI();
