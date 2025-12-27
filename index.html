@@ -1,13 +1,1672 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Teste Marcelo!</title>
-    <link rel="stylesheet" href="main.css" />
-    <script async src="main.js"></script>
-  </head>
-  <body>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Simulation Brawl Stars - Star Drop</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Russo+One&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Russo One', sans-serif;
+            background: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            transition: background 0.5s ease;
+        }
+        
+        body.rare {
+            background: linear-gradient(135deg, #004d40 0%, #00695c 50%, #00897b 100%);
+        }
+        
+        body.super-rare {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+        }
+        
+        body.epic {
+            background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 50%, #7b1fa2 100%);
+        }
+        
+        body.mythic {
+            background: linear-gradient(135deg, #b71c1c 0%, #c62828 50%, #d32f2f 100%);
+        }
+        
+        body.legendary {
+            background: linear-gradient(135deg, #f57f17 0%, #f9a825 50%, #fbc02d 100%);
+        }
+        
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            position: relative;
+        }
+        
+        .logo {
+            font-family: 'Lilita One', cursive;
+            font-size: 2rem;
+            color: #FFCC00;
+            text-shadow: 3px 3px 0 #FF6B00, 6px 6px 0 rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        /* Background glow based on rarity */
+        .rarity-bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+        
+        .rarity-bg-glow.rare {
+            background: radial-gradient(ellipse at center, #00E676 0%, transparent 70%);
+        }
+        
+        .rarity-bg-glow.super-rare {
+            background: radial-gradient(ellipse at center, #40C4FF 0%, transparent 70%);
+        }
+        
+        .rarity-bg-glow.epic {
+            background: radial-gradient(ellipse at center, #9D4EDD 0%, transparent 70%);
+        }
+        
+        .rarity-bg-glow.mythic {
+            background: radial-gradient(ellipse at center, #FF5252 0%, transparent 70%);
+        }
+        
+        .rarity-bg-glow.legendary {
+            background: radial-gradient(ellipse at center, #FFD700 0%, transparent 70%);
+        }
+        
+        .star-drop-container {
+            position: absolute;
+            top: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+        
+        .star-drop-container:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .star-drop {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            transition: filter 0.3s ease;
+        }
+        
+        .star-drop svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Star glow based on rarity */
+        .star-drop.rare svg {
+            filter: drop-shadow(0 0 20px rgba(0, 230, 118, 0.8));
+        }
+        
+        .star-drop.super-rare svg {
+            filter: drop-shadow(0 0 20px rgba(64, 196, 255, 0.8));
+        }
+        
+        .star-drop.epic svg {
+            filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.8));
+        }
+        
+        .star-drop.mythic svg {
+            filter: drop-shadow(0 0 20px rgba(255, 82, 82, 0.8));
+        }
+        
+        .star-drop.legendary svg {
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 60px rgba(255, 165, 0, 0.8));
+            animation: float 3s ease-in-out infinite, legendaryPulse 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        @keyframes legendaryPulse {
+            0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 40px rgba(255, 165, 0, 0.5)); }
+            100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)) drop-shadow(0 0 80px rgba(255, 165, 0, 0.8)); }
+        }
+        
+        .star-drop.shaking {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+        
+        .level-up-animation {
+            animation: levelUp 0.5s ease-out;
+        }
+        
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        .glow-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 4px solid #FFD700;
+            border-radius: 50%;
+            opacity: 0;
+            animation: none;
+            pointer-events: none;
+        }
+        
+        .glow-ring.active {
+            animation: expandRing 1.5s ease-out forwards;
+        }
+        
+        @keyframes expandRing {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #FFD700, #FF6B00);
+            border-radius: 50%;
+            animation: particleFly 1.5s ease-out forwards;
+        }
+        
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        
+        .light-beam {
+            position: fixed;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(255,215,0,0.8) 0%, rgba(255,107,0,0.4) 50%, transparent 100%);
+            opacity: 0;
+            z-index: 50;
+            pointer-events: none;
+        }
+        
+        .light-beam.active {
+            animation: lightBeam 1s ease-out forwards;
+        }
+        
+        @keyframes lightBeam {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        .reveal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #2d1b4e 0%, #1a0a2e 100%);
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .reveal-container.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .rarity-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.5;
+            animation: rarityPulse 2s ease-in-out infinite;
+        }
+        
+        .rarity-glow.legendary {
+            background: radial-gradient(circle, #FFD700, #FFA500);
+        }
+        
+        .rarity-glow.mythic {
+            background: radial-gradient(circle, #FF5252, #D32F2F);
+        }
+        
+        .rarity-glow.epic {
+            background: radial-gradient(circle, #C77DFF, #9D4EDD);
+        }
+        
+        .rarity-glow.super-rare {
+            background: radial-gradient(circle, #40C4FF, #00B0FF);
+        }
+        
+        .rarity-glow.rare {
+            background: radial-gradient(circle, #00E676, #00C853);
+        }
+        
+        @keyframes rarityPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        .brawler-card {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0) rotate(-180deg);
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .brawler-card.revealed {
+            transform: scale(1) rotate(0deg);
+        }
+        
+        .brawler-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 150px;
+            border: 4px solid;
+            box-shadow: 0 0 50px, inset 0 0 30px;
+            margin-bottom: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+        }
+        
+        .brawler-name {
+            font-family: 'Lilita One', cursive;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+            margin-bottom: 10px;
+        }
+        
+        .brawler-rarity {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: textGlow 1s ease-in-out infinite alternate;
+        }
+        
+        .brawler-rarity.rare {
+            color: #00E676;
+            animation: textGlowRare 1s ease-in-out infinite alternate;
+        }
+        
+        .brawler-rarity.super-rare {
+            color: #40C4FF;
+            animation: textGlowSuperRare 1s ease-in-out infinite alternate;
+        }
+        
+        .brawler-rarity.epic {
+            color: #C77DFF;
+            animation: textGlowEpic 1s ease-in-out infinite alternate;
+        }
+        
+        .brawler-rarity.mythic {
+            color: #FF5252;
+            animation: textGlowMythic 1s ease-in-out infinite alternate;
+        }
+        
+        .brawler-rarity.legendary {
+            color: #FFD700;
+            animation: textGlowLegendary 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes textGlowRare {
+            from { text-shadow: 0 0 10px #00E676; }
+            to { text-shadow: 0 0 30px #00E676, 0 0 50px #00C853; }
+        }
+        
+        @keyframes textGlowSuperRare {
+            from { text-shadow: 0 0 10px #40C4FF; }
+            to { text-shadow: 0 0 30px #40C4FF, 0 0 50px #00B0FF; }
+        }
+        
+        @keyframes textGlowEpic {
+            from { text-shadow: 0 0 10px #C77DFF; }
+            to { text-shadow: 0 0 30px #C77DFF, 0 0 50px #9D4EDD; }
+        }
+        
+        @keyframes textGlowMythic {
+            from { text-shadow: 0 0 10px #FF5252; }
+            to { text-shadow: 0 0 30px #FF5252, 0 0 50px #D32F2F; }
+        }
+        
+        @keyframes textGlowLegendary {
+            from { text-shadow: 0 0 10px #FFD700; }
+            to { text-shadow: 0 0 30px #FFD700, 0 0 50px #FFA000; }
+        }
+        
+        .stars-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .star {
+            color: #FFD700;
+            font-size: 2rem;
+            opacity: 0;
+            transform: scale(0);
+            animation: starAppear 0.5s ease forwards;
+        }
+        
+        @keyframes starAppear {
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            background: linear-gradient(135deg, #00E676, #00C853);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transform: rotate(15deg) scale(0);
+            animation: badgeAppear 0.5s ease 0.5s forwards;
+            box-shadow: 0 5px 20px rgba(0,230,118,0.5);
+        }
+        
+        @keyframes badgeAppear {
+            to { transform: rotate(15deg) scale(1); }
+        }
+        
+        /* Attempt Balls */
+        .attempts-container {
+            position: absolute;
+            top: 480px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .attempt-ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .attempt-ball.used {
+            opacity: 0.3;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .attempt-ball.current {
+            transform: scale(1.2);
+            animation: currentPulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes currentPulse {
+            0%, 100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 25px currentColor, 0 0 40px currentColor; }
+        }
+        
+        .rarity-text {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            color: white;
+            font-size: 3.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            z-index: 5;
+            text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+            font-family: 'Lilita One', cursive;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .tap-instruction {
+            position: absolute;
+            bottom: 50px;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            text-align: center;
+            z-index: 10;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .try-again-btn {
+            position: absolute;
+            bottom: 50px;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-family: 'Russo One', sans-serif;
+            background: linear-gradient(135deg, #9D4EDD, #7B2CBF);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transform: scale(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 30px rgba(157,78,221,0.5);
+            z-index: 20;
+        }
+        
+        .try-again-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 40px rgba(157,78,221,0.7);
+        }
+        
+        .try-again-btn.show {
+            transform: scale(1);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 300;
+            animation: confettiFall 3s ease-out forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .screen-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 500;
+        }
+        
+        .screen-flash.active {
+            animation: flash 0.3s ease-out;
+        }
+        
+        @keyframes flash {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        
+        /* Level up text */
+        .level-up-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Lilita One', cursive;
+            font-size: 3rem;
+            color: #FFD700;
+            text-shadow: 0 0 30px #FFD700, 0 0 60px #FFA500;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 150;
+        }
+        
+        .level-up-text.show {
+            animation: levelUpTextShow 1s ease-out forwards;
+        }
+        
+        @keyframes levelUpTextShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-30px); }
+        }
+        
+        /* Navigation Buttons - Left Side */
+        .nav-buttons {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 50;
+        }
+        
+        .nav-btn {
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #9D4EDD, #7B2CBF);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 50;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 20px rgba(157,78,221,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(157,78,221,0.6);
+        }
+        
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .nav-btn.active:hover {
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.7);
+        }
+        
+        /* Collection Page */
+        .collection-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 80px 20px 150px 20px;
+            overflow-y: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 40;
+        }
+        
+        .collection-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .collection-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .collection-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        
+        .collection-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .collection-container.active {
+            display: block;
+        }
+        
+        .collection-container.active {
+            display: block;
+        }
+        
+        .collection-title {
+            font-family: 'Lilita One', cursive;
+            font-size: 2.5rem;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #FF6B00, 6px 6px 0 rgba(0,0,0,0.3);
+        }
+        
+        .collection-stats {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        
+        .collection-stats span {
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        .rarity-section {
+            margin-bottom: 50px;
+        }
+        
+        .rarity-section-title {
+            font-family: 'Lilita One', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+            border: none;
+        }
+        
+        .rarity-section-title.rare {
+            color: #00E676;
+            border-color: #00E676;
+        }
+        
+        .rarity-section-title.superRare {
+            color: #40C4FF;
+            border-color: #40C4FF;
+        }
+        
+        .rarity-section-title.epic {
+            color: #C77DFF;
+            border-color: #C77DFF;
+        }
+        
+        .rarity-section-title.mythic {
+            color: #FF5252;
+            border-color: #FF5252;
+        }
+        
+        .rarity-section-title.legendary {
+            color: #FFD700;
+            border-color: #FFD700;
+        }
+        
+        .brawlers-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 10px;
+            justify-content: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 600px) {
+            .brawlers-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 5px;
+                padding: 5px;
+                max-width: 350px;
+            }
+        }
+        
+        .brawler-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            min-width: 0;
+            overflow: hidden;
+            padding: 4px;
+        }
+        
+        .brawler-item.locked {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+        
+        .brawler-item.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+        }
+        
+        .brawler-item:hover {
+            transform: scale(1.1);
+        }
+        
+        .brawler-item.unlocked:hover {
+            box-shadow: 0 0 25px currentColor;
+        }
+        
+        .brawler-item-emoji {
+            font-size: 1.6rem;
+        }
+        
+        .brawler-item-name {
+            font-size: 0.45rem;
+            color: white;
+            margin-top: 2px;
+            text-align: center;
+            font-family: 'Russo One', sans-serif;
+            text-transform: uppercase;
+            line-height: 1;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+        
+        .brawler-item.locked-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+        }
+        
+        .brawler-count {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 0.4rem;
+            padding: 1px 3px;
+            border-radius: 4px;
+            font-family: 'Russo One', sans-serif;
+        }
+        
+        .brawler-item.locked-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state-text {
+            font-size: 1.2rem;
+            font-family: 'Lilita One', cursive;
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <button class="nav-btn active" id="starDropBtn" title="Star Drop">⭐</button>
+        <button class="nav-btn" id="collectionBtn" title="Coleção">📚</button>
+    </div>
     
-    <script src="//my.visme.co/visme-embed.js"></script><div class="visme_d" data-url="pvggvw4g-untitled-project" data-w="1366" data-h="768" data-domain="my"></div><p style="width:223px !important;border-radius:3px !important;padding:3px !important;font-size:12px !important;font-family:Arial, sans-serif !important;color:#314152 !important;white-space:nowrap !important"></p>
+    <div class="rarity-bg-glow rare" id="rarityBgGlow"></div>
     
-  </body>
+    <div class="game-container" id="gameContainer">
+        <p class="rarity-text" id="rarityText" style="color: #00E676;">RARE</p>
+        
+        <div class="star-drop-container" id="starDropContainer">
+            <div class="glow-ring" id="glowRing"></div>
+            <div class="star-drop rare" id="starDrop">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFD700"/>
+                            <stop offset="50%" style="stop-color:#FFA500"/>
+                            <stop offset="100%" style="stop-color:#FF6B00"/>
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <polygon points="50,5 61,35 95,35 68,55 79,90 50,70 21,90 32,55 5,35 39,35" 
+                             fill="url(#starGradient)" filter="url(#glow)" stroke="#FFD700" stroke-width="2"/>
+                    <polygon points="50,15 58,35 80,35 62,50 70,75 50,60 30,75 38,50 20,35 42,35" 
+                             fill="#FFE4B5" opacity="0.6"/>
+                    <ellipse cx="40" cy="30" rx="8" ry="5" fill="white" opacity="0.6" transform="rotate(-30, 40, 30)"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="attempts-container" id="attemptsContainer">
+            <div class="attempt-ball current" id="attempt-0" data-attempt="1" style="color: #00E676; border-color: #00E676;">1</div>
+            <div class="attempt-ball" id="attempt-1" data-attempt="2" style="color: #00E676; border-color: #00E676;">2</div>
+            <div class="attempt-ball" id="attempt-2" data-attempt="3" style="color: #00E676; border-color: #00E676;">3</div>
+            <div class="attempt-ball" id="attempt-3" data-attempt="4" style="color: #00E676; border-color: #00E676;">4</div>
+            <div class="attempt-ball" id="attempt-4" data-attempt="5" style="color: #00E676; border-color: #00E676;">5</div>
+        </div>
+        
+        <div class="open-instruction" id="openInstruction" style="display: none; position: absolute; top: 560px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 1rem; text-align: center; z-index: 10; animation: bounce 1s ease-in-out infinite; white-space: nowrap;">
+            👆 Toque para abrir!
+        </div>
+    </div>
+    
+    <div class="level-up-text" id="levelUpText">LEVEL UP!</div>
+    <div class="light-beam" id="lightBeam"></div>
+    <div class="particles" id="particles"></div>
+    <div class="screen-flash" id="screenFlash"></div>
+    
+    <div class="reveal-container" id="revealContainer">
+        <div class="rarity-glow rare" id="rarityGlow"></div>
+        
+        <div class="brawler-card" id="brawlerCard">
+            <div class="new-badge">NOVO!</div>
+            <div class="brawler-image" id="brawlerImage"></div>
+            <h2 class="brawler-name" id="brawlerName"></h2>
+        </div>
+        
+        <button class="try-again-btn" id="tryAgainBtn">🔄 TENTAR NOVAMENTE</button>
+    </div>
+    
+    <!-- Collection Page -->
+    <div class="collection-container" id="collectionContainer">
+        <h1 class="collection-title">📚 MEUS BRAWLERS</h1>
+        <p class="collection-stats">
+            Desbloqueados: <span id="totalUnlocked">0</span> / <span id="totalBrawlers">0</span>
+        </p>
+        
+        <div id="collectionContent"></div>
+    </div>
+
+    <script>
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        const brawlersByRarity = {
+            rare: [
+                { name: "COLT", emoji: "🤠", color: "#00E676" },
+                { name: "SHELLY", emoji: "👩", color: "#00E676" },
+                { name: "EL PRIMO", emoji: "💪", color: "#00E676" },
+                { name: "BULL", emoji: "🐂", color: "#00E676" },
+                { name: "BROCK", emoji: "🚀", color: "#00E676" },
+                { name: "DYNAMIKE", emoji: "💣", color: "#00E676" },
+                { name: "BO", emoji: "🪵", color: "#00E676" }
+            ],
+            superRare: [
+                { name: "MORTIS", emoji: "🦇", color: "#40C4FF" },
+                { name: "JESSIE", emoji: "🎀", color: "#40C4FF" },
+                { name: "NITA", emoji: "🐻", color: "#40C4FF" },
+                { name: "RICO", emoji: "🎱", color: "#40C4FF" },
+                { name: "DARRYL", emoji: "🐢", color: "#40C4FF" },
+                { name: "PENNY", emoji: "⚓", color: "#40C4FF" },
+                { name: "CARL", emoji: "🪨", color: "#40C4FF" }
+            ],
+            epic: [
+                { name: "PIPER", emoji: "🎯", color: "#9D4EDD" },
+                { name: "PAM", emoji: "🔧", color: "#9D4EDD" },
+                { name: "TARA", emoji: "🃏", color: "#9D4EDD" },
+                { name: "FRANK", emoji: "🏗️", color: "#9D4EDD" },
+                { name: "GENE", emoji: "👁️", color: "#9D4EDD" },
+                { name: "BIBI", emoji: "🏏", color: "#9D4EDD" },
+                { name: "EDGAR", emoji: "🛹", color: "#9D4EDD" }
+            ],
+            mythic: [
+                { name: "MORTIS", emoji: "🦇", color: "#FF5252" },
+                { name: "TICK", emoji: "🤖", color: "#FF5252" },
+                { name: "MAX", emoji: "⚡", color: "#FF5252" },
+                { name: "MR. P", emoji: "🐧", color: "#FF5252" },
+                { name: "SPROUT", emoji: "🌱", color: "#FF5252" },
+                { name: "BYRON", emoji: "💉", color: "#FF5252" },
+                { name: "SQUEAK", emoji: "🎈", color: "#FF5252" }
+            ],
+            legendary: [
+                { name: "SPIKE", emoji: "🦔", color: "#FFD700" },
+                { name: "CROW", emoji: "🐦‍⬛", color: "#FFD700" },
+                { name: "LEON", emoji: "🐆", color: "#FFD700" },
+                { name: "SANDY", emoji: "🐪", color: "#FFD700" },
+                { name: "AMBER", emoji: "🔥", color: "#FFD700" },
+                { name: "CHESTER", emoji: "🎭", color: "#FFD700" },
+                { name: "SURGE", emoji: "⚛️", color: "#FFD700" },
+                { name: "CORD", emoji: "🌾", color: "#FFD700" }
+            ]
+        };
+        
+        const rarityNames = {
+            rare: "RARE",
+            superRare: "SUPER-RARE",
+            epic: "EPIC",
+            mythic: "MYTHIC",
+            legendary: "LENDÁRIO"
+        };
+        
+        const rarityOrder = ['rare', 'superRare', 'epic', 'mythic', 'legendary'];
+        
+        let currentRarity = 0; // 0 = rare, 4 = legendary
+        let currentAttempt = 0; // 0-4
+        let selectedBrawler = null;
+        let selectedRarity = null;
+        let isOpening = false;
+        let canOpen = false; // When true, next click opens the star
+        let isCollectionOpen = false; // Collection page state
+        
+        // Load unlocked brawlers from localStorage
+        let unlockedBrawlers = JSON.parse(localStorage.getItem('unlockedBrawlers')) || {};
+        
+        const rarityColors = {
+            rare: '#00E676',
+            superRare: '#40C4FF',
+            epic: '#9D4EDD',
+            mythic: '#FF5252',
+            legendary: '#FFD700'
+        };
+        
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+        
+        function playSound(type) {
+            if (!audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            switch(type) {
+                case 'tap':
+                    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+                    
+                case 'charge':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+                    
+                case 'levelUp':
+                    const frequencies = [523, 659, 784, 1047];
+                    frequencies.forEach((freq, i) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.frequency.value = freq;
+                        osc.type = 'sine';
+                        gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.1);
+                        gain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + i * 0.1 + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+                        osc.start(audioCtx.currentTime + i * 0.1);
+                        osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+                    });
+                    break;
+                    
+                case 'open':
+                    const openFreqs = [523, 659, 784, 1047, 1319, 1568, 2093];
+                    openFreqs.forEach((freq, i) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.frequency.value = freq;
+                        osc.type = 'sine';
+                        gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.08);
+                        gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + i * 0.08 + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.08 + 0.4);
+                        osc.start(audioCtx.currentTime + i * 0.08);
+                        osc.stop(audioCtx.currentTime + i * 0.08 + 0.4);
+                    });
+                    break;
+                    
+                case 'reveal':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 1.2);
+                    
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc2.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.4);
+                    gain2.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+                    osc2.start(audioCtx.currentTime);
+                    osc2.stop(audioCtx.currentTime + 1);
+                    break;
+                    
+                case 'sparkle':
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.frequency.value = 2000 + Math.random() * 3000;
+                            osc.type = 'sine';
+                            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                            osc.start(audioCtx.currentTime);
+                            osc.stop(audioCtx.currentTime + 0.1);
+                        }, i * 50);
+                    }
+                    break;
+            }
+        }
+        
+        function createParticles(x, y, count = 30, color = null) {
+            const container = document.getElementById('particles');
+            const colors = color ? [color] : ['#FFD700', '#FFA500', '#FF6B00', '#FF4500', '#9D4EDD', '#FF69B4'];
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, white)`;
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 400 + 'px');
+                particle.style.width = (5 + Math.random() * 12) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+        
+        function createConfetti() {
+            const colors = ['#FFD700', '#FFA500', '#9D4EDD', '#FF69B4', '#00E676', '#40C4FF', '#FF5252'];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.width = (5 + Math.random() * 10) + 'px';
+                    confetti.style.height = confetti.style.width;
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+        
+        function flashScreen() {
+            const flash = document.getElementById('screenFlash');
+            flash.classList.add('active');
+            setTimeout(() => flash.classList.remove('active'), 300);
+        }
+        
+        function updateRarityUI() {
+            const rarity = rarityOrder[currentRarity];
+            const color = rarityColors[rarity];
+            
+            // Update body background
+            document.body.className = rarity;
+            
+            // Update background glow
+            const bgGlow = document.getElementById('rarityBgGlow');
+            bgGlow.className = `rarity-bg-glow ${rarity}`;
+            
+            // Update star drop
+            const starDrop = document.getElementById('starDrop');
+            starDrop.className = `star-drop ${rarity}`;
+            
+            // Update rarity text
+            const rarityText = document.getElementById('rarityText');
+            rarityText.textContent = rarityNames[rarity];
+            rarityText.style.color = color;
+            
+            // Update all attempt balls color
+            const balls = document.querySelectorAll('.attempt-ball');
+            balls.forEach((ball, index) => {
+                if (!ball.classList.contains('used')) {
+                    ball.style.color = color;
+                    ball.style.borderColor = color;
+                }
+            });
+            
+            // Update current ball
+            const currentBall = document.getElementById(`attempt-${currentAttempt}`);
+            if (currentBall && !canOpen) {
+                balls.forEach(b => b.classList.remove('current'));
+                currentBall.classList.add('current');
+            } else if (canOpen) {
+                balls.forEach(b => b.classList.remove('current'));
+            }
+        }
+        
+        function showLevelUpText() {
+            const text = document.getElementById('levelUpText');
+            text.classList.remove('show');
+            void text.offsetWidth; // Trigger reflow
+            text.classList.add('show');
+        }
+        
+        function rollForLevelUp() {
+            const random = Math.random() * 100;
+            
+            // Check lowest probabilities first (as requested)
+            // 1% chance to go directly to Legendary
+            if (random < 1) {
+                return 4 - currentRarity; // Jump to legendary
+            }
+            
+            // 2% chance to jump 3 levels
+            if (random < 3) {
+                return Math.min(3, 4 - currentRarity); // Jump 3 levels
+            }
+            
+            // 10% chance to jump 2 levels
+            if (random < 13) {
+                return Math.min(2, 4 - currentRarity); // Jump 2 levels
+            }
+            
+            // 50% chance to go to next level
+            if (random < 63) {
+                return 1; // Go to next level
+            }
+            
+            // 37% chance to stay at same level
+            return 0;
+        }
+        
+        function handleStarTap() {
+            if (isOpening) return;
+            
+            initAudio();
+            
+            // Se pode abrir, abre a estrela
+            if (canOpen) {
+                openStarDrop();
+                return;
+            }
+            
+            // Se já usou todas as tentativas ou chegou no lendário, prepara para abrir
+            if (currentAttempt >= 5 || currentRarity >= 4) {
+                canOpen = true;
+                document.getElementById('openInstruction').style.display = 'block';
+                return;
+            }
+            
+            // Usa uma tentativa para tentar aumentar a raridade
+            const container = document.getElementById('starDropContainer');
+            const starDrop = document.getElementById('starDrop');
+            const glowRing = document.getElementById('glowRing');
+            const rect = starDrop.getBoundingClientRect();
+            
+            playSound('charge');
+            
+            // Mark current attempt as used
+            const currentBall = document.getElementById(`attempt-${currentAttempt}`);
+            currentBall.classList.remove('current');
+            currentBall.classList.add('used');
+            
+            // Create particles
+            createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, rarityColors[rarityOrder[currentRarity]]);
+            
+            // Roll for level up
+            const levelsUp = rollForLevelUp();
+            
+            if (levelsUp > 0) {
+                // Level up!
+                const oldRarity = currentRarity;
+                currentRarity = Math.min(currentRarity + levelsUp, 4);
+                
+                if (currentRarity > oldRarity) {
+                    // Show glow ring
+                    glowRing.classList.add('active');
+                    setTimeout(() => glowRing.classList.remove('active'), 1500);
+                    
+                    // Level up animation
+                    starDrop.classList.add('level-up-animation');
+                    setTimeout(() => starDrop.classList.remove('level-up-animation'), 500);
+                    
+                    playSound('levelUp');
+                    showLevelUpText();
+                    
+                    // Create more particles
+                    setTimeout(() => {
+                        createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 40, rarityColors[rarityOrder[currentRarity]]);
+                    }, 200);
+                }
+            }
+            
+            // Move to next attempt
+            currentAttempt++;
+            
+            // Check if reached legendary after this attempt
+            if (currentRarity >= 4) {
+                // Mark remaining balls as used
+                for (let i = currentAttempt; i < 5; i++) {
+                    const ball = document.getElementById(`attempt-${i}`);
+                    ball.classList.remove('current');
+                    ball.classList.add('used');
+                }
+                updateRarityUI();
+                // Show instruction to open
+                canOpen = true;
+                document.getElementById('openInstruction').style.display = 'block';
+                return;
+            }
+            
+            // Update UI if more attempts available
+            if (currentAttempt < 5) {
+                updateRarityUI();
+            } else {
+                // All attempts used - show instruction to open
+                updateRarityUI();
+                canOpen = true;
+                document.getElementById('openInstruction').style.display = 'block';
+            }
+        }
+        
+        async function openStarDrop() {
+            isOpening = true;
+            
+            const container = document.getElementById('starDropContainer');
+            const starDrop = document.getElementById('starDrop');
+            const lightBeam = document.getElementById('lightBeam');
+            const attemptsContainer = document.getElementById('attemptsContainer');
+            const rarityText = document.getElementById('rarityText');
+            
+            rarityText.style.opacity = '0';
+            attemptsContainer.style.opacity = '0';
+            
+            // Shake animation
+            starDrop.classList.add('shaking');
+            
+            // Play shake sounds
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => playSound('tap'), i * 100);
+            }
+            
+            // Start glow rings
+            setTimeout(() => {
+                const glowRing = document.getElementById('glowRing');
+                glowRing.classList.add('active');
+                setTimeout(() => glowRing.classList.remove('active'), 1500);
+            }, 300);
+            
+            setTimeout(() => {
+                const glowRing = document.getElementById('glowRing');
+                glowRing.classList.add('active');
+                setTimeout(() => glowRing.classList.remove('active'), 1500);
+            }, 600);
+            
+            // After shake, play open sound
+            setTimeout(() => {
+                playSound('open');
+                flashScreen();
+                lightBeam.classList.add('active');
+                
+                const rect = starDrop.getBoundingClientRect();
+                const color = rarityColors[rarityOrder[currentRarity]];
+                createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, 80, color);
+                
+                container.style.transform = 'scale(0)';
+                container.style.opacity = '0';
+                container.style.transition = 'all 0.5s ease';
+            }, 1200);
+            
+            // Show reveal
+            setTimeout(() => {
+                showReveal();
+            }, 2000);
+        }
+        
+        function selectBrawlerFromDrop(dropRarity) {
+            const dropRarityIndex = rarityOrder.indexOf(dropRarity);
+            
+            // Probabilidades baseadas na raridade do drop
+            const dropProbabilities = {
+                legendary: [
+                    { rarity: 'legendary', chance: 5 },
+                    { rarity: 'mythic', chance: 10 },
+                    { rarity: 'epic', chance: 20 },
+                    { rarity: 'superRare', chance: 30 },
+                    { rarity: 'rare', chance: 35 }
+                ],
+                mythic: [
+                    { rarity: 'mythic', chance: 5 },
+                    { rarity: 'epic', chance: 15 },
+                    { rarity: 'superRare', chance: 30 },
+                    { rarity: 'rare', chance: 50 }
+                ],
+                epic: [
+                    { rarity: 'epic', chance: 8 },
+                    { rarity: 'superRare', chance: 27 },
+                    { rarity: 'rare', chance: 65 }
+                ],
+                superRare: [
+                    { rarity: 'superRare', chance: 15 },
+                    { rarity: 'rare', chance: 85 }
+                ],
+                rare: [
+                    { rarity: 'rare', chance: 100 }
+                ]
+            };
+            
+            const probabilities = dropProbabilities[dropRarity];
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            let selectedRarity = 'rare';
+            
+            for (const prob of probabilities) {
+                cumulative += prob.chance;
+                if (random < cumulative) {
+                    selectedRarity = prob.rarity;
+                    break;
+                }
+            }
+            
+            // Get a random brawler from the selected rarity
+            const brawlers = brawlersByRarity[selectedRarity];
+            return {
+                brawler: brawlers[Math.floor(Math.random() * brawlers.length)],
+                rarity: selectedRarity
+            };
+        }
+        
+        function showReveal() {
+            const revealContainer = document.getElementById('revealContainer');
+            const brawlerCard = document.getElementById('brawlerCard');
+            const brawlerImage = document.getElementById('brawlerImage');
+            const brawlerName = document.getElementById('brawlerName');
+            const rarityGlow = document.getElementById('rarityGlow');
+            const tryAgainBtn = document.getElementById('tryAgainBtn');
+            
+            const dropRarity = rarityOrder[currentRarity];
+            const result = selectBrawlerFromDrop(dropRarity);
+            selectedRarity = result.rarity;
+            selectedBrawler = result.brawler;
+            
+            revealContainer.classList.add('active');
+            
+            rarityGlow.className = `rarity-glow ${selectedRarity}`;
+            
+            brawlerImage.style.background = `linear-gradient(145deg, ${selectedBrawler.color}40, ${selectedBrawler.color}80)`;
+            brawlerImage.style.borderColor = selectedBrawler.color;
+            brawlerImage.style.boxShadow = `0 0 50px ${selectedBrawler.color}80, inset 0 0 30px ${selectedBrawler.color}40`;
+            
+            playSound('reveal');
+            playSound('sparkle');
+            
+            brawlerImage.innerHTML = selectedBrawler.emoji;
+            brawlerName.textContent = selectedBrawler.name;
+            brawlerName.style.color = selectedBrawler.color;
+            
+            setTimeout(() => {
+                brawlerCard.classList.add('revealed');
+                playSound('sparkle');
+            }, 500);
+            
+            setTimeout(() => {
+                createConfetti();
+                playSound('sparkle');
+            }, 1000);
+            
+            setTimeout(() => {
+                tryAgainBtn.classList.add('show');
+            }, 2000);
+            
+            isOpening = false;
+        }
+        
+        function saveUnlockedBrawler(brawler) {
+            const key = `${brawler.rarity}-${brawler.name}`;
+            if (!unlockedBrawlers[key]) {
+                unlockedBrawlers[key] = {
+                    name: brawler.name,
+                    emoji: brawler.emoji,
+                    color: brawler.color,
+                    rarity: brawler.rarity,
+                    count: 0,
+                    unlockedAt: new Date().toISOString()
+                };
+            }
+            unlockedBrawlers[key].count++;
+            localStorage.setItem('unlockedBrawlers', JSON.stringify(unlockedBrawlers));
+        }
+        
+        // Navigation Functions
+        function showStarDrop() {
+            initAudio();
+            playSound('tap');
+            
+            isCollectionOpen = false;
+            const collectionContainer = document.getElementById('collectionContainer');
+            const starDropBtn = document.getElementById('starDropBtn');
+            const collectionBtn = document.getElementById('collectionBtn');
+            
+            collectionContainer.classList.remove('active');
+            starDropBtn.classList.add('active');
+            collectionBtn.classList.remove('active');
+        }
+        
+        function showCollection() {
+            initAudio();
+            playSound('tap');
+            
+            isCollectionOpen = true;
+            const collectionContainer = document.getElementById('collectionContainer');
+            const starDropBtn = document.getElementById('starDropBtn');
+            const collectionBtn = document.getElementById('collectionBtn');
+            
+            collectionContainer.classList.add('active');
+            starDropBtn.classList.remove('active');
+            collectionBtn.classList.add('active');
+            renderCollection();
+        }
+        
+        function renderCollection() {
+            const content = document.getElementById('collectionContent');
+            let html = '';
+            let totalUnlocked = 0;
+            let totalBrawlers = 0;
+            
+            rarityOrder.forEach(rarity => {
+                const brawlers = brawlersByRarity[rarity];
+                totalBrawlers += brawlers.length;
+                let unlockedInRarity = 0;
+                
+                let brawlersHtml = '';
+                brawlers.forEach(brawler => {
+                    const key = `${rarity}-${brawler.name}`;
+                    const isUnlocked = unlockedBrawlers[key];
+                    
+                    if (isUnlocked) {
+                        unlockedInRarity++;
+                        totalUnlocked++;
+                    }
+                    
+                    brawlersHtml += `
+                        <div class="brawler-item ${isUnlocked ? 'unlocked' : 'locked'}" 
+                             style="--color: ${brawler.color}"
+                             onclick="initAudio(); playSound('tap');">
+                            <div class="brawler-item-emoji">${brawler.emoji}</div>
+                            <div class="brawler-item-name">${brawler.name}</div>
+                            ${isUnlocked ? `<div class="brawler-count">x${isUnlocked.count}</div>` : '<div class="brawler-item locked-overlay">🔒</div>'}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                    <div class="rarity-section">
+                        <h2 class="rarity-section-title ${rarity}">
+                            ${rarityNames[rarity]} (${unlockedInRarity}/${brawlers.length})
+                        </h2>
+                        <div class="brawlers-grid">
+                            ${brawlersHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (totalUnlocked === 0) {
+                html = `
+                    <div class="empty-state">
+                        <div class="empty-state-emoji">🎁</div>
+                        <div class="empty-state-text">Você ainda não desbloqueou nenhum brawler!</div>
+                        <div style="margin-top: 15px; color: rgba(255,255,255,0.6); font-size: 0.9rem;">
+                            Abra Star Drops para desbloquear brawlers
+                        </div>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+            document.getElementById('totalUnlocked').textContent = totalUnlocked;
+            document.getElementById('totalBrawlers').textContent = totalBrawlers;
+        }
+        
+        function resetGame() {
+            const revealContainer = document.getElementById('revealContainer');
+            const brawlerCard = document.getElementById('brawlerCard');
+            const container = document.getElementById('starDropContainer');
+            const tryAgainBtn = document.getElementById('tryAgainBtn');
+            const rarityText = document.getElementById('rarityText');
+            const attemptsContainer = document.getElementById('attemptsContainer');
+            const balls = document.querySelectorAll('.attempt-ball');
+            
+            initAudio();
+            playSound('tap');
+            
+            // Save the unlocked brawler
+            if (selectedBrawler && selectedRarity) {
+                saveUnlockedBrawler({
+                    ...selectedBrawler,
+                    rarity: selectedRarity
+                });
+            }
+            
+            currentRarity = 0;
+            currentAttempt = 0;
+            canOpen = false;
+            
+            revealContainer.classList.remove('active');
+            brawlerCard.classList.remove('revealed');
+            tryAgainBtn.classList.remove('show');
+            document.getElementById('openInstruction').style.display = 'none';
+            
+            balls.forEach((ball, index) => {
+                ball.classList.remove('used', 'current');
+                if (index === 0) {
+                    ball.classList.add('current');
+                }
+            });
+            
+            setTimeout(() => {
+                container.style.transform = 'scale(1)';
+                container.style.opacity = '1';
+                rarityText.style.opacity = '1';
+                attemptsContainer.style.opacity = '1';
+                document.getElementById('particles').innerHTML = '';
+                updateRarityUI();
+            }, 500);
+        }
+        
+        document.getElementById('starDropContainer').addEventListener('click', handleStarTap);
+        document.getElementById('tryAgainBtn').addEventListener('click', resetGame);
+        document.getElementById('starDropBtn').addEventListener('click', showStarDrop);
+        document.getElementById('collectionBtn').addEventListener('click', showCollection);
+        
+        document.getElementById('starDropContainer').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleStarTap();
+        });
+        document.getElementById('tryAgainBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            resetGame();
+        });
+        document.getElementById('starDropBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            showStarDrop();
+        });
+        document.getElementById('collectionBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            showCollection();
+        });
+        
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRarityUI();
+        });
+    </script>
+</body>
 </html>
