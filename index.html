@@ -1229,15 +1229,6 @@
                     ball.style.borderColor = color;
                 }
             });
-            
-            // Update current ball
-            const currentBall = document.getElementById(`attempt-${currentAttempt}`);
-            if (currentBall && !canOpen) {
-                balls.forEach(b => b.classList.remove('current'));
-                currentBall.classList.add('current');
-            } else if (canOpen) {
-                balls.forEach(b => b.classList.remove('current'));
-            }
         }
         
         function showLevelUpText() {
@@ -1266,17 +1257,17 @@
                 return Math.min(2, 4 - currentRarity); // Jump 2 levels
             }
             
-            // 50% chance to go to next level
-            if (random < 63) {
+            // 30% chance to go to next level
+            if (random < 43) {
                 return 1; // Go to next level
             }
             
-            // 37% chance to stay at same level
+            // 57% chance to stay at same level
             return 0;
         }
         
         function handleStarTap() {
-            if (isOpening) return;
+            if (isOpening || isCollectionOpen) return;
             
             initAudio();
             
@@ -1288,6 +1279,8 @@
             
             // Se já usou todas as tentativas ou chegou no lendário, prepara para abrir
             if (currentAttempt >= 5 || currentRarity >= 4) {
+                const audio = new Audio(`sons/${rarityOrder[currentRarity].replace('superRare', 'super-rare')}-star-drop-brawl-stars.mp3`);
+                audio.play();
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
                 const attemptsContainer = document.getElementById('attemptsContainer');
@@ -1354,6 +1347,8 @@
                 }
                 updateRarityUI();
                 // Show instruction to open
+                const audio = new Audio(`sons/${rarityOrder[currentRarity].replace('superRare', 'super-rare')}-star-drop-brawl-stars.mp3`);
+                audio.play();
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
                 const attemptsContainer = document.getElementById('attemptsContainer');
@@ -1370,6 +1365,8 @@
             } else {
                 // All attempts used - show instruction to open
                 updateRarityUI();
+                const audio = new Audio(`sons/${rarityOrder[currentRarity].replace('superRare', 'super-rare')}-star-drop-brawl-stars.mp3`);
+                audio.play();
                 canOpen = true;
                 document.getElementById('openInstruction').style.display = 'block';
                 const attemptsContainer = document.getElementById('attemptsContainer');
@@ -1387,10 +1384,6 @@
             const result = selectBrawlerFromDrop(dropRarity);
             selectedRarity = result.rarity;
             selectedBrawler = result.brawler;
-            
-            // Play the rarity sound before opening animation
-            const audio = new Audio(`sons/${dropRarity.replace('superRare', 'super-rare')}-star-drop-brawl-stars.mp3`);
-            audio.play();
             
             const container = document.getElementById('starDropContainer');
             const starDrop = document.getElementById('starDrop');
@@ -1453,22 +1446,22 @@
             // Probabilidades baseadas na raridade do drop
             const dropProbabilities = {
                 legendary: [
-                    { rarity: 'legendary', chance: 25 },
-                    { rarity: 'mythic', chance: 30 },
-                    { rarity: 'epic', chance: 30 },
+                    { rarity: 'legendary', chance: 30 },
+                    { rarity: 'mythic', chance: 25 },
+                    { rarity: 'epic', chance: 25 },
                     { rarity: 'superRare', chance: 15 },
-                    { rarity: 'rare', chance: 0 }
+                    { rarity: 'rare', chance: 5 }
                 ],
                 mythic: [
-                    { rarity: 'mythic', chance: 25 },
-                    { rarity: 'epic', chance: 30 },
+                    { rarity: 'mythic', chance: 40 },
+                    { rarity: 'epic', chance: 25 },
                     { rarity: 'superRare', chance: 25 },
-                    { rarity: 'rare', chance: 20 }
+                    { rarity: 'rare', chance: 10 }
                 ],
                 epic: [
-                    { rarity: 'epic', chance: 25 },
+                    { rarity: 'epic', chance: 50 },
                     { rarity: 'superRare', chance: 40 },
-                    { rarity: 'rare', chance: 35 }
+                    { rarity: 'rare', chance: 10 }
                 ],
                 superRare: [
                     { rarity: 'superRare', chance: 55 },
@@ -1707,6 +1700,7 @@
                 });
             }
             
+            isOpening = false;
             currentRarity = 0;
             currentAttempt = 0;
             canOpen = false;
@@ -1718,9 +1712,6 @@
             
             balls.forEach((ball, index) => {
                 ball.classList.remove('used', 'current');
-                if (index === 0) {
-                    ball.classList.add('current');
-                }
             });
             
             setTimeout(() => {
@@ -1735,25 +1726,37 @@
             }, 500);
         }
         
-        document.getElementById('starDropContainer').addEventListener('click', handleStarTap);
-        document.getElementById('tryAgainBtn').addEventListener('click', resetGame);
-        document.getElementById('starDropBtn').addEventListener('click', showStarDrop);
-        document.getElementById('collectionBtn').addEventListener('click', showCollection);
+        document.addEventListener('click', handleStarTap);
+        document.getElementById('tryAgainBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetGame();
+        });
+        document.getElementById('starDropBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showStarDrop();
+        });
+        document.getElementById('collectionBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCollection();
+        });
         
-        document.getElementById('starDropContainer').addEventListener('touchend', (e) => {
+        document.addEventListener('touchend', (e) => {
             e.preventDefault();
             handleStarTap();
         });
         document.getElementById('tryAgainBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             resetGame();
         });
         document.getElementById('starDropBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             showStarDrop();
         });
         document.getElementById('collectionBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             showCollection();
         });
         
@@ -1767,6 +1770,8 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             updateRarityUI();
+            // Prevent clicks on reveal container from bubbling to document
+            document.getElementById('revealContainer').addEventListener('click', (e) => e.stopPropagation());
         });
     </script>
 </body>
