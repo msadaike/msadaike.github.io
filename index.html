@@ -814,7 +814,9 @@
         }
         
         .brawler-item-emoji {
-            font-size: 1.6rem;
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
         }
         
         .brawler-item-name {
@@ -975,49 +977,111 @@
         
         const brawlersByRarity = {
             rare: [
-                { name: "COLT", emoji: "🤠", color: "#00E676" },
-                { name: "SHELLY", emoji: "👩", color: "#00E676" },
-                { name: "EL PRIMO", emoji: "💪", color: "#00E676" },
-                { name: "BULL", emoji: "🐂", color: "#00E676" },
-                { name: "BROCK", emoji: "🚀", color: "#00E676" },
-                { name: "DYNAMIKE", emoji: "💣", color: "#00E676" },
-                { name: "BO", emoji: "🪵", color: "#00E676" }
+                { name: "ROSA", image: "brawlers/rosa.png", color: "#00E676" },
+                { name: "POCO", image: "brawlers/poco.png", color: "#00E676" },
+                { name: "EL PRIMO", image: "brawlers/elprimo.png", color: "#00E676" },
+                { name: "NITA", image: "brawlers/nita.png", color: "#00E676" },
+                { name: "BARLEY", image: "brawlers/barley.png", color: "#00E676" },
+                { name: "BROCK", image: "brawlers/brock.png", color: "#00E676" },
+                { name: "BULL", image: "brawlers/bull.png", color: "#00E676" },
+                { name: "COLT", image: "brawlers/colt.png", color: "#00E676" },
+                { name: "SHELLY", image: "brawlers/shelly.png", color: "#00E676" }
             ],
             superRare: [
-                { name: "MORTIS", emoji: "🦇", color: "#40C4FF" },
-                { name: "JESSIE", emoji: "🎀", color: "#40C4FF" },
-                { name: "NITA", emoji: "🐻", color: "#40C4FF" },
-                { name: "RICO", emoji: "🎱", color: "#40C4FF" },
-                { name: "DARRYL", emoji: "🐢", color: "#40C4FF" },
-                { name: "PENNY", emoji: "⚓", color: "#40C4FF" },
-                { name: "CARL", emoji: "🪨", color: "#40C4FF" }
+                { name: "GUS", image: "brawlers/gus.png", color: "#40C4FF" },
+                { name: "JACKY", image: "brawlers/jacky.png", color: "#40C4FF" },
+                { name: "8-BIT", image: "brawlers/8bit.png", color: "#40C4FF" },
+                { name: "CARL", image: "brawlers/carl.png", color: "#40C4FF" },
+                { name: "TICK", image: "brawlers/tick.png", color: "#40C4FF" },
+                { name: "PENNY", image: "brawlers/penny.png", color: "#40C4FF" },
+                { name: "DARRYL", image: "brawlers/darryl.png", color: "#40C4FF" },
+                { name: "DYNAMIKE", image: "brawlers/dynamike.png", color: "#40C4FF" },
+                { name: "JESSIE", image: "brawlers/jessie.png", color: "#40C4FF" },
+                { name: "RICO", image: "brawlers/rico.png", color: "#40C4FF" }
             ],
             epic: [
-                { name: "PIPER", emoji: "🎯", color: "#9D4EDD" },
-                { name: "PAM", emoji: "🔧", color: "#9D4EDD" },
-                { name: "TARA", emoji: "🃏", color: "#9D4EDD" },
-                { name: "FRANK", emoji: "🏗️", color: "#9D4EDD" },
-                { name: "GENE", emoji: "👁️", color: "#9D4EDD" },
-                { name: "BIBI", emoji: "🏏", color: "#9D4EDD" },
-                { name: "EDGAR", emoji: "🛹", color: "#9D4EDD" }
+                { name: "TRUNK", image: "brawlers/trunk.png", color: "#9D4EDD" },
+                { name: "MEEPLE", image: "brawlers/meeple.png", color: "#9D4EDD" },
+                { name: "SHADE", image: "brawlers/shade.png", color: "#9D4EDD" },
+                { name: "BERRY", image: "brawlers/berry.png", color: "#9D4EDD" },
+                { name: "ANGELO", image: "brawlers/angelo.png", color: "#9D4EDD" },
+                { name: "LARRY & LAWRIE", image: "brawlers/larry-lawrie.png", color: "#9D4EDD" },
+                { name: "PEARL", image: "brawlers/pearl.png", color: "#9D4EDD" },
+                { name: "HANK", image: "brawlers/hank.png", color: "#9D4EDD" },
+                { name: "MAISIE", image: "brawlers/maisie.png", color: "#9D4EDD" },
+                { name: "MANDY", image: "brawlers/mandy.png", color: "#9D4EDD" },
+                { name: "SAM", image: "brawlers/sam.png", color: "#9D4EDD" },
+                { name: "BONNIE", image: "brawlers/bonnie.png", color: "#9D4EDD" },
+                { name: "LOLA", image: "brawlers/lola.png", color: "#9D4EDD" },
+                { name: "ASH", image: "brawlers/ash.png", color: "#9D4EDD" },
+                { name: "GRIFF", image: "brawlers/griff.png", color: "#9D4EDD" },
+                { name: "GROM", image: "brawlers/grom.png", color: "#9D4EDD" },
+                { name: "BELLE", image: "brawlers/belle.png", color: "#9D4EDD" },
+                { name: "STU", image: "brawlers/stu.png", color: "#9D4EDD" },
+                { name: "EDGAR", image: "brawlers/edgar.png", color: "#9D4EDD" },
+                { name: "COLETTE", image: "brawlers/colette.png", color: "#9D4EDD" },
+                { name: "NANI", image: "brawlers/nani.png", color: "#9D4EDD" },
+                { name: "GALE", image: "brawlers/gale.png", color: "#9D4EDD" },
+                { name: "EMZ", image: "brawlers/emz.png", color: "#9D4EDD" },
+                { name: "BEA", image: "brawlers/bea.png", color: "#9D4EDD" },
+                { name: "BIBI", image: "brawlers/bibi.png", color: "#9D4EDD" },
+                { name: "FRANK", image: "brawlers/frank.png", color: "#9D4EDD" },
+                { name: "PAM", image: "brawlers/pam.png", color: "#9D4EDD" },
+                { name: "PIPER", image: "brawlers/piper.png", color: "#9D4EDD" },
+                { name: "BO", image: "brawlers/bo.png", color: "#9D4EDD" }
             ],
             mythic: [
-                { name: "MORTIS", emoji: "🦇", color: "#FF5252" },
-                { name: "TICK", emoji: "🤖", color: "#FF5252" },
-                { name: "MAX", emoji: "⚡", color: "#FF5252" },
-                { name: "MR. P", emoji: "🐧", color: "#FF5252" },
-                { name: "SPROUT", emoji: "🌱", color: "#FF5252" },
-                { name: "BYRON", emoji: "💉", color: "#FF5252" },
-                { name: "SQUEAK", emoji: "🎈", color: "#FF5252" }
+                { name: "GIGI", image: "brawlers/gigi.png", color: "#FF5252" },
+                { name: "ZIGGY", image: "brawlers/ziggy.png", color: "#FF5252" },
+                { name: "MINA", image: "brawlers/mina.png", color: "#FF5252" },
+                { name: "ALLI", image: "brawlers/alli.png", color: "#FF5252" },
+                { name: "JAE-YONG", image: "brawlers/jae-yong.png", color: "#FF5252" },
+                { name: "FINX", image: "brawlers/finx.png", color: "#FF5252" },
+                { name: "LUMI", image: "brawlers/lumi.png", color: "#FF5252" },
+                { name: "OLLIE", image: "brawlers/ollie.png", color: "#FF5252" },
+                { name: "JUJU", image: "brawlers/juju.png", color: "#FF5252" },
+                { name: "MOE", image: "brawlers/moe.png", color: "#FF5252" },
+                { name: "CLANCY", image: "brawlers/clancy.png", color: "#FF5252" },
+                { name: "LILY", image: "brawlers/lily.png", color: "#FF5252" },
+                { name: "MELODIE", image: "brawlers/melodie.png", color: "#FF5252" },
+                { name: "MICO", image: "brawlers/mico.png", color: "#FF5252" },
+                { name: "CHARLIE", image: "brawlers/charlie.png", color: "#FF5252" },
+                { name: "CHUCK", image: "brawlers/chuck.png", color: "#FF5252" },
+                { name: "DOUG", image: "brawlers/doug.png", color: "#FF5252" },
+                { name: "WILLOW", image: "brawlers/willow.png", color: "#FF5252" },
+                { name: "RT", image: "brawlers/rt.png", color: "#FF5252" },
+                { name: "GRAY", image: "brawlers/gray.png", color: "#FF5252" },
+                { name: "BUSTER", image: "brawlers/buster.png", color: "#FF5252" },
+                { name: "OTIS", image: "brawlers/otis.png", color: "#FF5252" },
+                { name: "JANET", image: "brawlers/janet.png", color: "#FF5252" },
+                { name: "EVE", image: "brawlers/eve.png", color: "#FF5252" },
+                { name: "FANG", image: "brawlers/fang.png", color: "#FF5252" },
+                { name: "BUZZ", image: "brawlers/buzz.png", color: "#FF5252" },
+                { name: "SQUEAK", image: "brawlers/squeak.png", color: "#FF5252" },
+                { name: "RUFFS", image: "brawlers/ruffs.png", color: "#FF5252" },
+                { name: "BYRON", image: "brawlers/byron.png", color: "#FF5252" },
+                { name: "MAX", image: "brawlers/max.png", color: "#FF5252" },
+                { name: "MR. P", image: "brawlers/mrp.png", color: "#FF5252" },
+                { name: "GENE", image: "brawlers/gene.png", color: "#FF5252" },
+                { name: "TARA", image: "brawlers/tara.png", color: "#FF5252" },
+                { name: "MORTIS", image: "brawlers/mortis.png", color: "#FF5252" },
+                { name: "LOU", image: "brawlers/lou.png", color: "#FF5252" },
+                { name: "SPROUT", image: "brawlers/sprout.png", color: "#FF5252" }
             ],
             legendary: [
-                { name: "SPIKE", emoji: "🦔", color: "#FFD700" },
-                { name: "CROW", emoji: "🐦‍", color: "#FFD700" },
-                { name: "LEON", emoji: "🦎", color: "#FFD700" },
-                { name: "SANDY", emoji: "🐪", color: "#FFD700" },
-                { name: "AMBER", emoji: "🔥", color: "#FFD700" },
-                { name: "CHESTER", emoji: "🎭", color: "#FFD700" },
-                { name: "SURGE", emoji: "⚛️", color: "#FFD700" }
+                { name: "PIERCE", image: "brawlers/pierce.png", color: "#FFD700" },
+                { name: "KENJI", image: "brawlers/kenji.png", color: "#FFD700" },
+                { name: "DRACO", image: "brawlers/draco.png", color: "#FFD700" },
+                { name: "KIT", image: "brawlers/kit.png", color: "#FFD700" },
+                { name: "CORDELIUS", image: "brawlers/cordelius.png", color: "#FFD700" },
+                { name: "AMBER", image: "brawlers/amber.png", color: "#FFD700" },
+                { name: "SURGE", image: "brawlers/surge.png", color: "#FFD700" },
+                { name: "SANDY", image: "brawlers/sandy.png", color: "#FFD700" },
+                { name: "LEON", image: "brawlers/leon.png", color: "#FFD700" },
+                { name: "CROW", image: "brawlers/crow.png", color: "#FFD700" },
+                { name: "SPIKE", image: "brawlers/spike.png", color: "#FFD700" },
+                { name: "CHESTER", image: "brawlers/chester.png", color: "#FFD700" },
+                { name: "MEG", image: "brawlers/meg.png", color: "#FFD700" }
             ]
         };
         
@@ -1529,7 +1593,7 @@
             playSound('reveal');
             playSound('sparkle');
             
-            brawlerImage.innerHTML = selectedBrawler.emoji;
+            brawlerImage.innerHTML = `<img src="${selectedBrawler.image}" alt="${selectedBrawler.name}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px;">`;
             brawlerName.textContent = selectedBrawler.name;
             brawlerName.style.color = selectedBrawler.color;
             
@@ -1568,7 +1632,11 @@
             brawlerImage.style.borderColor = brawler.color;
             brawlerImage.style.boxShadow = `0 0 50px ${brawler.color}80, inset 0 0 30px ${brawler.color}40`;
             
-            brawlerImage.innerHTML = brawler.emoji;
+            if (!brawler.image) {
+                brawler.image = "brawlers/" + brawler.name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9-]/g, '') + ".png";
+            }
+            
+            brawlerImage.innerHTML = `<img src="${brawler.image}" alt="${brawler.name}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px;">`;
             brawlerName.textContent = brawler.name;
             brawlerName.style.color = brawler.color;
             
@@ -1580,7 +1648,7 @@
             if (!unlockedBrawlers[key]) {
                 unlockedBrawlers[key] = {
                     name: brawler.name,
-                    emoji: brawler.emoji,
+                    image: brawler.image,
                     color: brawler.color,
                     rarity: brawler.rarity,
                     count: 0,
@@ -1646,7 +1714,7 @@
                         <div class="brawler-item ${isUnlocked ? 'unlocked' : 'locked'}" 
                              style="--color: ${brawler.color}"
                              onclick="${isUnlocked ? `showBrawlerPopup('${key}'); ` : ''}initAudio(); playSound('tap');">
-                            <div class="brawler-item-emoji">${brawler.emoji}</div>
+                            <img src="${brawler.image}" alt="${brawler.name}" class="brawler-item-emoji">
                             <div class="brawler-item-name">${brawler.name}</div>
                             ${isUnlocked ? `<div class="brawler-count">x${isUnlocked.count}</div>` : '<div class="brawler-item locked-overlay">🔒</div>'}
                         </div>
