@@ -1270,8 +1270,7 @@
         }
         
         function handleStarTap() {
-            if (isOpening || isCollectionOpen) return;
-            
+    if (isOpening || isCollectionOpen || document.getElementById('revealContainer').classList.contains('active')) return;
             initAudio();
             
             // Se pode abrir, abre a estrela
@@ -1775,6 +1774,14 @@
             updateRarityUI();
             // Prevent clicks on reveal container from bubbling to document
             document.getElementById('revealContainer').addEventListener('click', (e) => e.stopPropagation());
+            // Load version from version.txt
+            fetch('version.txt')
+                .then(response => response.text())
+                .then(version => {
+                    const versionDiv = document.getElementById('version');
+                    if (versionDiv) versionDiv.textContent = 'V ' + version.trim();
+                })
+                .catch(() => console.log('Version file not found'));
         });
     </script>
 </body>
