@@ -43,6 +43,10 @@
             background: linear-gradient(135deg, #f57f17 0%, #f9a825 50%, #fbc02d 100%);
         }
         
+        body.ultralegendary {
+            background: linear-gradient(135deg, #ff0000 0%, #ff8000 16.67%, #ffff00 33.33%, #80ff00 50%, #00ff00 66.67%, #00ff80 83.33%, #0000ff 100%);
+        }
+        
         .game-container {
             width: 100vw;
             height: 100vh;
@@ -91,6 +95,10 @@
         
         .rarity-bg-glow.legendary {
             background: radial-gradient(ellipse at center, #FFD700 0%, transparent 70%);
+        }
+        
+        .rarity-bg-glow.ultralegendary {
+            background: radial-gradient(ellipse at center, #ff0000 0%, #ff8000 20%, #ffff00 40%, #80ff00 60%, #00ff00 80%, #00ff80 90%, #0000ff 100%);
         }
         
         .star-drop-container {
@@ -142,6 +150,11 @@
             animation: float 3s ease-in-out infinite, legendaryPulse 1s ease-in-out infinite alternate;
         }
         
+        .star-drop.ultralegendary svg {
+            filter: drop-shadow(0 0 40px rgba(255, 0, 0, 1)) drop-shadow(0 0 80px rgba(255, 128, 0, 0.8)) drop-shadow(0 0 120px rgba(255, 255, 0, 0.6));
+            animation: float 3s ease-in-out infinite, ultralegendaryPulse 1s ease-in-out infinite alternate;
+        }
+        
         @keyframes float {
             0%, 100% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-10px) scale(1.2); }
@@ -150,6 +163,11 @@
         @keyframes legendaryPulse {
             0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 40px rgba(255, 165, 0, 0.5)); }
             100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)) drop-shadow(0 0 80px rgba(255, 165, 0, 0.8)); }
+        }
+        
+        @keyframes ultralegendaryPulse {
+            0% { filter: drop-shadow(0 0 30px rgba(255, 0, 0, 0.8)) drop-shadow(0 0 60px rgba(255, 128, 0, 0.5)) drop-shadow(0 0 90px rgba(255, 255, 0, 0.3)); }
+            100% { filter: drop-shadow(0 0 50px rgba(255, 0, 0, 1)) drop-shadow(0 0 100px rgba(255, 128, 0, 0.8)) drop-shadow(0 0 150px rgba(255, 255, 0, 0.6)); }
         }
         
         .star-drop.shaking {
@@ -390,6 +408,11 @@
             animation: textGlowLegendary 1s ease-in-out infinite alternate;
         }
         
+        .brawler-rarity.ultralegendary {
+            color: #FFD700;
+            animation: textGlowUltralegendary 1s ease-in-out infinite alternate;
+        }
+        
         @keyframes textGlowRare {
             from { text-shadow: 0 0 10px #00E676; }
             to { text-shadow: 0 0 30px #00E676, 0 0 50px #00C853; }
@@ -413,6 +436,11 @@
         @keyframes textGlowLegendary {
             from { text-shadow: 0 0 10px #FFD700; }
             to { text-shadow: 0 0 30px #FFD700, 0 0 50px #FFA000; }
+        }
+        
+        @keyframes textGlowUltralegendary {
+            from { text-shadow: 0 0 10px #ff0000, 0 0 10px #ff8000, 0 0 10px #ffff00; }
+            to { text-shadow: 0 0 30px #ff0000, 0 0 30px #ff8000, 0 0 30px #ffff00, 0 0 50px #80ff00, 0 0 50px #00ff00; }
         }
         
         .stars-container {
@@ -759,6 +787,15 @@
             border-color: #FFD700;
         }
         
+        .rarity-section-title.ultralegendary {
+            color: #FFD700;
+            border-color: #FFD700;
+            background: linear-gradient(90deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #0000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
         .brawlers-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -1082,6 +1119,9 @@
                 { name: "SPIKE", image: "brawlers/spike.png", color: "#FFD700" },
                 { name: "CHESTER", image: "brawlers/chester.png", color: "#FFD700" },
                 { name: "MEG", image: "brawlers/meg.png", color: "#FFD700" }
+            ],
+            ultralegendary: [
+                { name: "KAZE", image: "brawlers/kaze.png", color: "#FFD700" }
             ]
         };
         
@@ -1090,10 +1130,11 @@
             superRare: "SUPER-RARE",
             epic: "EPIC",
             mythic: "MYTHIC",
-            legendary: "LENDÁRIO"
+            legendary: "LENDÁRIO",
+            ultralegendary: "ULTRA-LENDÁRIO"
         };
         
-        const rarityOrder = ['rare', 'superRare', 'epic', 'mythic', 'legendary'];
+        const rarityOrder = ['rare', 'superRare', 'epic', 'mythic', 'legendary', 'ultralegendary'];
         
         let currentRarity = 0; // 0 = rare, 4 = legendary
         let currentAttempt = 0; // 0-4
@@ -1111,7 +1152,8 @@
             superRare: '#40C4FF',
             epic: '#9D4EDD',
             mythic: '#FF5252',
-            legendary: '#FFD700'
+            legendary: '#FFD700',
+            ultralegendary: '#FFD700'
         };
         
         function initAudio() {
@@ -1512,7 +1554,8 @@
             // Probabilidades baseadas na raridade do drop
             const dropProbabilities = {
                 legendary: [
-                    { rarity: 'legendary', chance: 30 },
+                    { rarity: 'legendary', chance: 29 },
+                    { rarity: 'ultralegendary', chance: 1 },
                     { rarity: 'mythic', chance: 25 },
                     { rarity: 'epic', chance: 25 },
                     { rarity: 'superRare', chance: 15 },
